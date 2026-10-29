@@ -149,3 +149,35 @@ If a player makes a move that exactly reverses their opponent's last move (e.g.,
 The game ends immediately when the player whose turn it is has no legal actions available. This occurs when they cannot move any of their pieces AND there are no hidden pieces left to flip.
 
 As soon as the game ends, the scores of all pieces remaining on the board are tallied. The player with the higher score wins.
+
+
+## Development
+
+Use Node.js 18+ for tests and Python 3 for the local HTTP server. No npm dependencies or build step are required.
+
+```sh
+npm start
+# Open http://localhost:8000
+npm test
+```
+
+Serve the game over HTTP: browser ES modules do not support opening this page directly with `file://`. The existing GitHub Pages hosting works with these relative module paths.
+
+### Project structure
+
+| File | Responsibility |
+| --- | --- |
+| `index.html` | Page structure and Tailwind CDN |
+| `styles.css` | Custom styles |
+| `src/constants.js` | Board dimensions, initial army, piece values and symbols |
+| `src/game.js` | Board state, moves, turns, scoring and game end rules |
+| `src/ai.js` | Minimax evaluation and action selection |
+| `src/ui.js` | Rendering, clicks and cancellable turn timers |
+| `src/main.js` | Browser entry point |
+| `tests/game.test.js` | Rules, AI and reset regression tests |
+
+The engine and AI have no DOM dependency. UI timers are cancelled on reset; callbacks also check the game generation to ignore stale work already queued. Repetition penalties are separate from immutable piece values.
+
+### Existing rules preserved
+
+This refactor preserves the existing engine's values: `K=10, R=9, C=5, H=4, W=3, E=2, A=2, S=1`. These differ from the original rules table above. The engine penalizes reversing the player's own previous move, rather than the opponent's move as described above. AI selects a move whenever one exists and considers flipping only when no move exists. These discrepancies are documented here for a separate gameplay decision.
